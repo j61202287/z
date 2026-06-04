@@ -197,7 +197,7 @@ export async function GET(req: NextRequest) {
       const rawSubjectId = selectedItem?.subjectId;
       if (!rawSubjectId)
         return NextResponse.json(
-          { success: false, error: "subjectId not found" },
+          { success: false, error: "SubjectId Not Found" },
           { status: 404 },
         );
 
