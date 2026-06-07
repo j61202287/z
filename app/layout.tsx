@@ -7,7 +7,6 @@ import Provider from "./provider";
 import Script from "next/script";
 import SandboxGuard from "@/components/ui/sandboxGuard";
 import DevToolGuard from "@/components/ui/debug_guard";
-import { Suspense } from "react";
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -32,7 +31,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const isProduction = process.env.NODE_ENV === "production";
   return (
     <html
       lang="en"
@@ -73,7 +71,8 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Provider>
-            <SandboxGuard>{children}</SandboxGuard>
+            {children}
+            {/* <SandboxGuard>{children}</SandboxGuard> */}
           </Provider>
         </ThemeProvider>
         <DevToolGuard />
