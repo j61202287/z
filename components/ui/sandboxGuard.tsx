@@ -14,10 +14,12 @@ export default function SandboxGuard({
     const inIframe = window.self !== window.top;
     if (!inIframe) return;
 
-    const script = document.createElement("script");
-    script.src = "https://cdn.zxcstream.xyz/scripts/ab.js"; // your own test script
-    script.onerror = () => setIsSandboxed(true); // blocked = sandboxed
-    document.head.appendChild(script);
+    const popup = window.open("", "_blank", "width=1,height=1");
+    if (popup === null) {
+      setIsSandboxed(true);
+    } else {
+      popup.close();
+    }
   }, []);
 
   if (isSandboxed) {
