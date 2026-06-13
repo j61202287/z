@@ -81,9 +81,9 @@ export async function GET(req: NextRequest) {
     const mediaType = req.nextUrl.searchParams.get("b");
     const season = req.nextUrl.searchParams.get(FIELD_MAP.season);
     const episode = req.nextUrl.searchParams.get(FIELD_MAP.episode);
-    const extra = mediaType === "tv" ? ` s=${season} e=${episode}` : "";
+    const extra = mediaType === "tv" ? `/${season}/${episode}` : "";
     console.log(
-      `[ICARUS] ${tmdbId}-${mediaType}${extra} | status=${status} | reason=${reason}`,
+      `[ICARUS] ${tmdbId}/${mediaType}${extra} | ${status} | ${reason}`,
     );
   };
   try {
@@ -358,7 +358,7 @@ export async function GET(req: NextRequest) {
       display: c.lanName,
       file: c.url,
     }));
-    logRequest(200, "ok");
+    logRequest(200, "OK!!!!!");
     return NextResponse.json({
       success: true,
       links,

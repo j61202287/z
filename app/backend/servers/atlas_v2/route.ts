@@ -123,9 +123,17 @@ function buildResponse(playerData: any) {
 }
 
 export async function GET(req: NextRequest) {
+  const logRequest = (status: number, reason: string) => {
+    const tmdbId = req.nextUrl.searchParams.get(FIELD_MAP.id);
+    const mediaType = req.nextUrl.searchParams.get("b");
+    const season = req.nextUrl.searchParams.get(FIELD_MAP.season);
+    const episode = req.nextUrl.searchParams.get(FIELD_MAP.episode);
+    const extra = mediaType === "tv" ? `/${season}/${episode}` : "";
+    console.log(
+      `[ATLAS] ${tmdbId}/${mediaType}${extra} | ${status} | ${reason}`,
+    );
+  };
   try {
-    const { searchParams } = req.nextUrl;
-
     const tmdbId = req.nextUrl.searchParams.get(FIELD_MAP.id); // "mid"
     const mediaType = req.nextUrl.searchParams.get("b"); // rotate this too if you want
     const season = req.nextUrl.searchParams.get(FIELD_MAP.season); // "sx"
@@ -136,48 +144,58 @@ export async function GET(req: NextRequest) {
     const token = req.nextUrl.searchParams.get(FIELD_MAP.token)!; // "sig"
     const f_token = req.nextUrl.searchParams.get(FIELD_MAP.fToken)!; // "xt"
 
-    if (!tmdbId || !mediaType || !title || !year || !ts || !token)
+    if (!tmdbId || !mediaType || !title || !year || !ts || !token) {
+      logRequest(404, "missing params");
       return NextResponse.json(
         { success: false, error: "need token" },
         { status: 404 },
       );
+    }
 
-    if (Date.now() - ts > 8000)
+    if (Date.now() - ts > 8000) {
+      logRequest(403, "token expired");
       return NextResponse.json(
         { success: false, error: "Invalid token" },
         { status: 403 },
       );
+    }
 
-    if (!validateBackendToken(tmdbId, f_token, ts, token))
+    if (!validateBackendToken(tmdbId, f_token, ts, token)) {
+      logRequest(403, "invalid token");
       return NextResponse.json(
         { success: false, error: "Invalid token" },
         { status: 403 },
       );
+    }
 
     const referer = req.headers.get("referer") || "";
-    if (!isValidReferer(referer))
+    if (!isValidReferer(referer)) {
+      logRequest(403, "invalid referrer");
       return NextResponse.json(
         { success: false, error: "Forbidden" },
         { status: 403 },
       );
+    }
 
     const cached = await dbGet(tmdbId, mediaType, season, episode);
 
     if (cached) {
       const { share_token: shareToken, files } = cached;
       const bestFile = selectBestFile(files);
-      if (!bestFile)
+      if (!bestFile) {
+        logRequest(403, "file not found");
         return NextResponse.json(
           { success: false, error: "No files found" },
           { status: 404 },
         );
+      }
 
       const playerData = await fetchWithTimeout(
         `${FEBBOX_PLAYER_WORKER}/?fid=${bestFile.data_id}&share_key=${shareToken}`,
         {},
         8000,
       ).then((r) => r.json());
-
+      logRequest(200, "OK!!!!!");
       return buildResponse(playerData);
     }
 
@@ -196,14 +214,19 @@ export async function GET(req: NextRequest) {
 
     // console.log("dataaaa", data);
 
-    if (!data.success) return NextResponse.json(data, { status: 500 });
+    if (!data.success) {
+      logRequest(500, "main.jinluxuz failed");
+      return NextResponse.json(data, { status: 500 });
+    }
 
     const { shareToken, files } = data;
-    if (!files?.length)
+    if (!files?.length) {
+      logRequest(404, "no files found");
       return NextResponse.json(
         { success: false, error: "No files found" },
         { status: 404 },
       );
+    }
 
     const bestFile = selectBestFile(files);
 
@@ -216,7 +239,7 @@ export async function GET(req: NextRequest) {
       {},
       8000,
     ).then((r) => r.json());
-
+    logRequest(200, "OK!!!!!");
     return buildResponse(playerData);
   } catch (err: any) {
     console.error("API Error:", err);
