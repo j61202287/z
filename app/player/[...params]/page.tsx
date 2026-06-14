@@ -399,7 +399,7 @@ export default function Player() {
       {/* Video */}
       <div className="h-full w-full">
         <video
-          key={`${playerSrc}-${sourceQualityId}`}
+          key={playerSrc}
           ref={videoRef}
           onCanPlayThrough={handleCanPlay}
           onError={(e) => {

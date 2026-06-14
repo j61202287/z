@@ -431,6 +431,15 @@ export function useVideoPlayer({
   }, [serverIndex]);
 
   useEffect(() => {
+    setState((p) => ({
+      ...p,
+      canPlay: false,
+      waiting: true,
+      playing: false,
+    }));
+  }, [playerSrc]);
+
+  useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
     video.muted = initialMuted;

@@ -84,7 +84,7 @@ export default function Settings({
   const { values, setValue } = useSettingsStore();
 
   const buttonRef = useRef<HTMLButtonElement>(null);
-
+  console.log("ddd", source);
   function handleSelect(label: string, option: SettingsOption) {
     setValue(label, {
       display: option.display,
@@ -97,18 +97,33 @@ export default function Settings({
   const resolvedGroups = useMemo(() => {
     const dynamic: Record<DynamicKey, SettingsOption[]> = {
       //////////
-      qualities: [
-        { id: "auto", display: "Auto" },
-        ...quality.map((q, i) => ({
-          id: String(i),
-          display: `${q.height}p`,
+      downloads: source
+        .filter((l) => l.type !== "hls")
+        .map((l, i) => ({
+          id: l.link,
+          display: l.resolution
+            ? `${l.resolution}${l.resolution === 4 ? "K" : "p"} — ${formatSize(l.size)}`
+            : (l.format ?? `Source ${i + 1}`),
         })),
-      ],
+      //////////
+      qualities:
+        quality.length > 1
+          ? [
+              { id: "auto", display: "Auto" },
+              ...quality.map((q, i) => ({
+                id: String(i),
+                display: `${q.height}p`,
+              })),
+            ]
+          : [],
       /////////
-      audioTracks: audioTracks.map((a, i) => ({
-        id: String(i),
-        display: a.lang ? `${a.name} (${a.lang.toUpperCase()})` : a.name,
-      })),
+      audioTracks:
+        audioTracks.length > 1
+          ? audioTracks.map((a, i) => ({
+              id: String(i),
+              display: a.lang ? `${a.name} (${a.lang.toUpperCase()})` : a.name,
+            }))
+          : [],
       /////////
       subtitles: [
         { id: "off", display: "Off" },
@@ -145,11 +160,15 @@ export default function Settings({
             ? { ...item, options: dynamic[item.dynamicKey] }
             : item;
         })
-        .filter((item) =>
-          item.label === "Source quality"
-            ? dynamic.sourceQualities.length > 1
-            : true,
-        ),
+        .filter((item) => {
+          if (item.label === "Source quality")
+            return dynamic.sourceQualities.length > 1;
+          if (item.label === "Quality") return dynamic.qualities.length > 0;
+          if (item.label === "Audio track")
+            return dynamic.audioTracks.length > 0;
+          if (item.label === "Download") return dynamic.downloads.length > 0;
+          return true;
+        }),
     }));
   }, [mergeSubtitles, audioTracks, quality]);
 
@@ -257,6 +276,12 @@ export default function Settings({
                                   if (item.action) {
                                     item.action();
                                     setOpen(false);
+                                  } else if (item.label === "Download") {
+                                    setActive({
+                                      item,
+                                      groupIndex: i,
+                                      itemIndex,
+                                    });
                                   } else if (item.options?.length) {
                                     setActive({
                                       item,
@@ -286,4 +311,11 @@ export default function Settings({
       </AnimatePresence>
     </div>
   );
+}
+function formatSize(bytes: string | undefined): string {
+  if (!bytes) return "";
+  const b = Number(bytes);
+  if (b >= 1_000_000_000) return `${(b / 1_000_000_000).toFixed(1)} GB`;
+  if (b >= 1_000_000) return `${(b / 1_000_000).toFixed(0)} MB`;
+  return `${b} B`;
 }

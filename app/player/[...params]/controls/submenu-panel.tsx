@@ -35,7 +35,13 @@ export function SubmenuPanel({ item, currentValue, onSelect, onBack }: Props) {
             return (
               <button
                 key={`${option.id}-${index}`}
-                onClick={() => onSelect(option)} // ← pass full option, not String(id)
+                onClick={() => {
+                  if (item.label === "Download") {
+                    window.open(option.id, "_blank"); // id is the link
+                  } else {
+                    onSelect(option);
+                  }
+                }} // ← pass full option, not String(id)
                 className="flex items-center justify-between w-full lg:px-3 px-2 lg:py-3 py-2 hover:bg-neutral-800 transition-colors rounded-sm"
               >
                 <span className="text-neutral-300 lg:text-base text-sm">

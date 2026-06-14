@@ -239,7 +239,10 @@ export async function GET(req: NextRequest) {
     }
 
     // -------- Resolve active subjectId/detailPath from dubs --------
-    const original = dubs.find((d: any) => d.original === true);
+    const original =
+      dubs.find((d: any) => d.original === true) ??
+      dubs.find((d: any) => d.lanCode === "en") ??
+      dubs[0];
     if (!original) {
       logRequest(404, "no original dub entry");
       return NextResponse.json(
@@ -374,9 +377,10 @@ export async function GET(req: NextRequest) {
         .filter((d: any) => d.type === 0)
         .map((d: any) => ({
           lang: d.lanCode,
-          name: d.lanName,
-          subjectId: d.subjectId,
+          name: d.lanName.replace(/\b(dub|audio)\b/gi, "").trim(),
+          original: d.original,
         })),
+      server: "icarus",
       meow: !!cached,
     });
   } catch (err: any) {
