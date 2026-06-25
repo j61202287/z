@@ -144,19 +144,21 @@ export default function MainControls({
       className="z-10 absolute inset-0  flex flex-col justify-between pointer-events-none bg-linear-to-t from-black/80 via-transparent to-black/50"
       onPointerMove={lockTimer}
     >
-      <div className="lg:px-4 px-2 py-3 flex justify-between items-center pointer-events-auto">
+      <div className="p-4 flex justify-between items-center pointer-events-auto">
         {back ? (
           <button onClick={() => router.back()} className="cursor-pointer">
             <ArrowLeftIcon className="lg:size-13 md:size-10 size-10  max-[340px]:size-5.5 text-muted-foreground" />
           </button>
         ) : (
-          <div className="lg:size-13 md:size-10 size-10  max-[340px]:size-5.5"></div>
+          <div className="hidden md:block"></div>
         )}
-        <div className="md:hidden">
-          <h1 className="lg:text-2xl md:text-xl font-semibold">{title}</h1>
-          <p className="md:text-base text-xs text-muted-foreground text-center">
-            {genre}
+        <div className={cn("md:hidden", back ? " text-center" : "")}>
+          <p className="lg:text-lg text-xs max-[340px]:text-[0.6rem] text-muted-foreground">
+            Your'e Watching
           </p>
+          <h1 className="lg:text-2xl md:text-xl font-semibold">
+            {title} {media_type === "tv" ? `S${season}E${episode}` : ""}
+          </h1>
         </div>
         <button
           onClick={() => setShowServer((prev) => !prev)}
@@ -171,7 +173,7 @@ export default function MainControls({
           />
         </button>
       </div>
-      <div className="w-full lg:px-4 px-2   max-[340px]:px-1 lg:py-6 py-3  max-[340px]:py-1.5  space-y-3  max-[340px]:space-y-1  ">
+      <div className="w-full p-4   max-[340px]:px-1 lg:py-6 py-3  max-[340px]:py-1.5  space-y-3  max-[340px]:space-y-1  ">
         <div className="lg:p-4 p-2  max-[340px]:p-1  pointer-events-none hidden md:block">
           <span className="flex lg:gap-3 gap-1.5  max-[340px]:gap-1 items-center">
             <div
@@ -191,7 +193,7 @@ export default function MainControls({
           </div>
         </div>
         <div className="space-y-3  max-[340px]:space-y-1 pointer-events-auto ">
-          <div className="lg:px-3 px-2 space-y-2">
+          <div className=" space-y-2">
             <div className="group  lg:h-4 h-2  max-[340px]:h-1   max-[340px]:px-1 flex justify-center items-center ">
               <div
                 className="relative w-full"
@@ -254,7 +256,7 @@ export default function MainControls({
                     exit={{ opacity: 0, scale: 1.5 }}
                     transition={{ duration: 0.1 }}
                   >
-                    <PauseIcon className="lg:size-13 md:size-10 size-8  max-[340px]:size-5.5 " />
+                    <PauseIcon className="lg:size-13 md:size-10 size-9  max-[340px]:size-5.5 " />
                   </motion.div>
                 ) : (
                   <motion.div
@@ -264,7 +266,7 @@ export default function MainControls({
                     exit={{ opacity: 0, scale: 1.5 }}
                     transition={{ duration: 0.1 }}
                   >
-                    <PlayIcon className=" lg:size-13 md:size-10 size-8  max-[340px]:size-5.5" />
+                    <PlayIcon className=" lg:size-13 md:size-10 size-9  max-[340px]:size-5.5" />
                   </motion.div>
                 )}
               </button>
@@ -275,9 +277,9 @@ export default function MainControls({
                   className="text-white/80 hover:text-white cursor-pointer"
                 >
                   {state.muted || state.volume === 0 ? (
-                    <VolumeOffIcon className="lg:size-13 md:size-10 size-8  max-[340px]:size-5.5" />
+                    <VolumeOffIcon className="lg:size-13 md:size-10 size-9  max-[340px]:size-5.5" />
                   ) : (
-                    <VolumeOnIcon className="lg:size-13 md:size-10 size-8  max-[340px]:size-5.5" />
+                    <VolumeOnIcon className="lg:size-13 md:size-10 size-9  max-[340px]:size-5.5" />
                   )}
                 </button>
                 <Slider
@@ -351,9 +353,9 @@ export default function MainControls({
                 className="cursor-pointer text-white/80 hover:text-white"
               >
                 {state.fullscreen ? (
-                  <MinimizeIcon className="lg:size-13 md:size-10 size-8  max-[340px]:size-5.5" />
+                  <MinimizeIcon className="lg:size-13 md:size-10 size-9  max-[340px]:size-5.5" />
                 ) : (
-                  <MaximizeIcon className="lg:size-13 md:size-10 size-8  max-[340px]:size-5.5" />
+                  <MaximizeIcon className="lg:size-13 md:size-10 size-9  max-[340px]:size-5.5" />
                 )}
               </button>
             </div>
